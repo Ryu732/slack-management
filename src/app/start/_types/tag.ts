@@ -8,5 +8,3 @@ export type Tag = {
 export type FetchTagsResponse = {
     tags: Tag[];
 };
-
-
