@@ -56,8 +56,8 @@ model Work {
   project_id    String
   user_name     String
   planned_task  String?
-  finish_task   String?
-  remind_task   String?
+  actual_task   String?
+  remaining_task   String?
   status        WorkStatus @default(WORKING)
   started_at    DateTime   @default(now())
   ended_at      DateTime?
