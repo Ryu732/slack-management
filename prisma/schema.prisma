@@ -7,8 +7,65 @@ datasource db {
   url      = "file:./dev.db"
 }
 
+// ステータス用のenum
+enum WorkStatus {
+  WORKING
+  COMPLETED 
+  PAUSED
+}
+
 // ヘルスチェック用のモデル
 model HealthCheck {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  created_at DateTime @default(now())
 }
+
+// プロジェクト
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  
+  // リレーション
+  tags        Tag[]
+  works       Work[]
+
+  @@map("projects")
+}
+
+// 作業のタグ
+model Tag {
+  id         String   @id @default(cuid())
+  project_id String
+  name       String
+  color      String   @default("#667eea")
+  created_at DateTime @default(now())
+  
+  // リレーション
+  project    Project  @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  @@map("tags")
+}
+
+// 作業記録
+model Work {
+  id            String     @id @default(cuid())
+  project_id    String
+  user_name     String
+  planned_task  String?
+  finish_task   String?
+  remind_task   String?
+  status        WorkStatus @default(WORKING)
+  started_at    DateTime   @default(now())
+  ended_at      DateTime?
+  created_at    DateTime   @default(now())
+  
+  // リレーション
+  project       Project    @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  @@map("work")
+}
+

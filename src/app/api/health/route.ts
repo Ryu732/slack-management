@@ -24,7 +24,7 @@ export async function GET() {
       { status: 500 }
     );
   } finally {
-    // 処理が終わったら接続を閉じる（SQLiteの場合は不要な場合が多いが、ベストプラクティスとして推奨）
+    // 処理が終わったら接続を閉じる
     await prisma.$disconnect();
   }
 }
