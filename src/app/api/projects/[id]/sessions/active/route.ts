@@ -12,7 +12,7 @@ export async function GET(
     // プロジェクトの存在確認
     const project = await prisma.project.findUnique({
       where: { id },
-      select: { id: true, project_name: true, is_active: true },
+      select: { id: true, name: true, is_active: true }, // project_name → name
     });
 
     if (!project) {
@@ -52,7 +52,7 @@ export async function GET(
                   project_id: id,
                 },
                 select: {
-                  tag_name: true,
+                  name: true, // tag_name → name
                 },
               })
             : [];
@@ -63,7 +63,7 @@ export async function GET(
           planned_task: session.planned_task,
           started_at: session.started_at.toISOString(),
           elapsed_minutes: elapsedMinutes,
-          tags: tags.map((tag: any) => tag.tag_name),
+          tags: tags.map((tag: any) => tag.name), // tag_name → name
         };
       })
     );

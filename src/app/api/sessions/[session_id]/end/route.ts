@@ -8,7 +8,24 @@ export async function POST(
 ) {
   try {
     const { session_id } = await params;
-    const body = await request.json();
+
+    // リクエストボディの安全な解析
+    let body;
+    try {
+      const text = await request.text();
+      if (!text || text.trim() === "") {
+        // 空のボディの場合はデフォルト値を設定
+        body = {};
+      } else {
+        body = JSON.parse(text);
+      }
+    } catch (parseError) {
+      return NextResponse.json(
+        { error: "Invalid JSON format" },
+        { status: 400 }
+      );
+    }
+
     const { actual_task, remaining_task } = body;
 
     // セッションが存在し、作業中であることを確認
@@ -16,7 +33,7 @@ export async function POST(
       where: { id: session_id },
       include: {
         project: {
-          select: { id: true, project_name: true, is_active: true },
+          select: { id: true, name: true, is_active: true }, // project_name → name
         },
       },
     });
@@ -71,16 +88,20 @@ export async function POST(
       message_ts: Date.now().toString() + ".000200",
     };
 
-    // レスポンス形式に変換（?を使ったオプショナルプロパティ）
+    // レスポンス形式に変換（スプレッド演算子で簡潔に）
     const response = {
       id: updatedSession.id,
       user_name: updatedSession.user_name,
       planned_task: updatedSession.planned_task,
-      actual_task: updatedSession.actual_task ?? undefined,
-      remaining_task: updatedSession.remaining_task ?? undefined,
+      ...(updatedSession.actual_task && {
+        actual_task: updatedSession.actual_task,
+      }),
+      ...(updatedSession.remaining_task && {
+        remaining_task: updatedSession.remaining_task,
+      }),
       status: updatedSession.status.toLowerCase(),
       started_at: updatedSession.started_at.toISOString(),
-      ended_at: updatedSession.ended_at?.toISOString(),
+      ended_at: updatedSession.ended_at!.toISOString(), // 必ず存在するため !
       duration_minutes: durationMinutes,
       tag_ids: tagIdsArray,
       tags: tags.map((tag: any) => ({
@@ -91,7 +112,6 @@ export async function POST(
       slack_notification: slackNotification,
     };
 
-    // JSON.stringifyはundefinedを自動的に除外してくれる
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
     console.error("Error ending work session:", error);
