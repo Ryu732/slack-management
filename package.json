@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "npm run schema:dev && next dev",
     "build": "npm run schema:prod && prisma generate && prisma db push && next build",
-    "schema:dev": "copy prisma\\schema.dev.prisma prisma\\schema.prisma",
-    "schema:prod": "copy prisma\\schema.prod.prisma prisma\\schema.prisma",
+    "schema:dev": "node scripts/copy-schema.js dev",
+    "schema:prod": "node scripts/copy-schema.js prod",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "npm run schema:prod && prisma generate",
