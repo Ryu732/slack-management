@@ -7,7 +7,25 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const body = await request.json();
+
+    // リクエストボディが空の時
+    let body;
+    try {
+      const text = await request.text();
+      if (!text || text.trim() === "") {
+        return NextResponse.json(
+          { error: "Request body is required" },
+          { status: 400 }
+        );
+      }
+      body = JSON.parse(text);
+    } catch (parseError) {
+      return NextResponse.json(
+        { error: "Invalid JSON format" },
+        { status: 400 }
+      );
+    }
+
     const { user_name, planned_task, tag_ids } = body;
 
     // バリデーション
