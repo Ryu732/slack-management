@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // プロジェクトを取得（関連データも含む）
     const project = await prisma.project.findUnique({
@@ -61,7 +61,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { name, description, is_active } = body;
 
