@@ -1,24 +1,18 @@
 'use client';
 
 import { useState } from "react";
-import startTask from "../_api/startTask";
+import postWork from "../_lib/postWork";
 import { UUID } from "crypto";
 import { start } from "../_types/startTask";
+import { sampleTags } from "../_types/tag";
 
 export default function StartTask({ project_id }: { project_id: UUID }) {
+
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [plannedTask, setPlannedTask] = useState('');
-  const [userName, setUserName] = useState('');
-  type Tag = { id: string; name: string; };
-  // タグのサンプルデータ
-  const tags: Tag[] = [
-    { id: 'frontend', name: 'フロントエンド' },
-    { id: 'backend', name: 'バックエンド' },
-    { id: 'design', name: 'デザイン' },
-    { id: 'documentation', name: 'ドキュメント' },
-    { id: 'bugfix', name: 'バグ修正' },
-    { id: 'other', name: 'その他' },
-  ];
+  const [plannedTask, setPlannedTask] = useState<string>("");
+  const [userName, setUserName] = useState<string>("");
+
+  const tags = sampleTags;
 
   const toggleTag = (tag: string) => {
     setSelectedTags(prev =>
@@ -27,6 +21,7 @@ export default function StartTask({ project_id }: { project_id: UUID }) {
         : [...prev, tag]
     );
   };
+
   const handleStartTask = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     const task: start = {
@@ -34,7 +29,7 @@ export default function StartTask({ project_id }: { project_id: UUID }) {
       planned_task: plannedTask,
       tag_ids: selectedTags
     };
-    startTask(task, project_id);
+    postWork(task, project_id);
     console.log("作業を開始:", task);
 
   };
