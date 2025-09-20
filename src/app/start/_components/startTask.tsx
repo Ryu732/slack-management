@@ -1,24 +1,21 @@
 'use client';
 
 import { useState } from "react";
-import startTask from "../_api/startTask";
+import postWork from "../_lib/postWork";
 import { UUID } from "crypto";
 import { start } from "../_types/startTask";
+import { Tag } from "@/app/start/_types/tag";
 
 export default function StartTask({ project_id }: { project_id: UUID }) {
+
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [plannedTask, setPlannedTask] = useState('');
-  const [userName, setUserName] = useState('');
-  type Tag = { id: string; name: string; };
-  // タグのサンプルデータ
+  const [plannedTask, setPlannedTask] = useState<string>("");
+  const [userName, setUserName] = useState<string>("");
+
   const tags: Tag[] = [
-    { id: 'frontend', name: 'フロントエンド' },
-    { id: 'backend', name: 'バックエンド' },
-    { id: 'design', name: 'デザイン' },
-    { id: 'documentation', name: 'ドキュメント' },
-    { id: 'bugfix', name: 'バグ修正' },
-    { id: 'other', name: 'その他' },
-  ];
+    { id: '1', name: 'フロントエンド', color: '#FF5733', usage_count: 10 },
+    { id: '2', name: 'バックエンド', color: '#33C1FF', usage_count: 8 },
+];
 
   const toggleTag = (tag: string) => {
     setSelectedTags(prev =>
@@ -27,6 +24,7 @@ export default function StartTask({ project_id }: { project_id: UUID }) {
         : [...prev, tag]
     );
   };
+
   const handleStartTask = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     const task: start = {
@@ -34,7 +32,7 @@ export default function StartTask({ project_id }: { project_id: UUID }) {
       planned_task: plannedTask,
       tag_ids: selectedTags
     };
-    startTask(task, project_id);
+    postWork(task, project_id);
     console.log("作業を開始:", task);
 
   };
@@ -82,10 +80,8 @@ export default function StartTask({ project_id }: { project_id: UUID }) {
                   <button
                     key={tags.id}
                     onClick={() => toggleTag(tags.id)}
-                    className={`px-3 py-1 text-xs rounded-full border-2 transition-all duration-300 hover:scale-105 ${selectedTags.includes(tags.id)
-                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-transparent'
-                        : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-500'
-                      }`}
+                    style={selectedTags.includes(tags.id) ? { backgroundColor: tags.color, color: "#fff", border: "none" } : {}}
+                    className={`px-3 py-1 text-xs rounded-full border-2 transition-all duration-300 hover:scale-105 ${selectedTags.includes(tags.id) ? "" : "text-gray-600 border-gray-200 hover:border-indigo-500"}`}
                   >
                     {tags.name}
                   </button>
