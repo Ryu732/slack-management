@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
@@ -58,7 +58,7 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
@@ -71,6 +71,30 @@ export async function PUT(
         { error: "Name cannot be empty" },
         { status: 400 }
       );
+    }
+
+    // 名前の重複チェック（名前が更新される場合のみ）
+    if (name !== undefined) {
+      const trimmedName = name.trim();
+
+      // 同じ名前の他のプロジェクトが存在するかチェック
+      const existingProject = await prisma.project.findFirst({
+        where: {
+          name: trimmedName,
+          is_active: true,
+          NOT: { id }, // 自分自身は除外
+        },
+      });
+
+      if (existingProject) {
+        return NextResponse.json(
+          {
+            error: "Project with this name already exists",
+            message: `プロジェクト名「${trimmedName}」は既に使用されています`,
+          },
+          { status: 409 } // 409 Conflict
+        );
+      }
     }
 
     // 更新用のデータを準備

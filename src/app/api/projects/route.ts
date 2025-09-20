@@ -69,6 +69,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
+    const trimmedName = name.trim();
+
+    // 重複チェック - 同じ名前のプロジェクトが既に存在するかチェック
+    const existingProject = await prisma.project.findFirst({
+      where: {
+        name: trimmedName,
+        is_active: true, // アクティブなプロジェクトのみチェック
+      },
+    });
+
+    if (existingProject) {
+      return NextResponse.json(
+        {
+          error: "Project with this name already exists",
+          message: `プロジェクト名「${trimmedName}」は既に使用されています`,
+        },
+        { status: 409 } // 409 Conflict
+      );
+    }
+
     // プロジェクト作成
     const project = await prisma.project.create({
       data: {
