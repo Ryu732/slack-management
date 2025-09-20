@@ -20,7 +20,7 @@ export async function GET(
     // プロジェクトの存在確認
     const project = await prisma.project.findUnique({
       where: { id },
-      select: { id: true, name: true, is_active: true }, // project_name → name に修正
+      select: { id: true, name: true, is_active: true },
     });
 
     if (!project) {
@@ -45,11 +45,11 @@ export async function GET(
       }
     }
 
-    // ユーザー名フィルター
+    // ユーザー名フィルター（SQLite用に修正）
     if (user_name) {
       whereConditions.user_name = {
         contains: user_name,
-        mode: "insensitive",
+        // SQLiteでは mode: "insensitive" を削除
       };
     }
 
@@ -61,14 +61,23 @@ export async function GET(
       },
     });
 
-    // タグIDフィルター
+    // ユーザー名フィルター（大文字小文字を区別しない検索をアプリケーション側で実装）
     let filteredSessions = allSessions;
+    if (user_name) {
+      filteredSessions = allSessions.filter((session: any) =>
+        session.user_name.toLowerCase().includes(user_name.toLowerCase())
+      );
+    } else {
+      filteredSessions = allSessions;
+    }
+
+    // タグIDフィルター
     const targetTagIds = tag_ids
       ? tag_ids.split(",").map((id) => id.trim())
       : null;
 
     if (targetTagIds) {
-      filteredSessions = allSessions.filter((session: any) => {
+      filteredSessions = filteredSessions.filter((session: any) => {
         const sessionTagIds = Array.isArray(session.tag_ids)
           ? (session.tag_ids as string[])
           : [];
@@ -111,28 +120,25 @@ export async function GET(
               })
             : [];
 
-        const response: any = {
+        // スプレッド演算子で条件付きプロパティを追加
+        const response = {
           id: session.id,
           user_name: session.user_name,
           planned_task: session.planned_task,
+          ...(session.actual_task && {
+            actual_task: session.actual_task,
+          }),
+          ...(session.remaining_task && {
+            remaining_task: session.remaining_task,
+          }),
           status: session.status.toLowerCase(),
           started_at: session.started_at.toISOString(),
+          ...(session.ended_at && {
+            ended_at: session.ended_at.toISOString(),
+            duration_minutes: durationMinutes,
+          }),
           tags: tags.map((tag: any) => tag.name),
         };
-
-        // 値がある場合のみレスポンスに含める
-        if (session.actual_task) {
-          response.actual_task = session.actual_task;
-        }
-
-        if (session.remaining_task) {
-          response.remaining_task = session.remaining_task;
-        }
-
-        if (session.ended_at) {
-          response.ended_at = session.ended_at.toISOString();
-          response.duration_minutes = durationMinutes;
-        }
 
         return response;
       })
