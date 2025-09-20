@@ -53,6 +53,28 @@ export async function POST(
       );
     }
 
+    // 同じユーザーが同じプロジェクトで同じ作業名で作業中でないかチェック
+    if (planned_task && planned_task.trim()) {
+      const existingWork = await prisma.work.findFirst({
+        where: {
+          project_id: id,
+          user_name: user_name.trim(),
+          planned_task: planned_task.trim(),
+          status: "WORKING", // 作業中のもののみチェック
+        },
+      });
+
+      if (existingWork) {
+        return NextResponse.json(
+          {
+            error: "Work with the same name is already in progress",
+            message: `「${planned_task.trim()}」は既に作業中です`,
+          },
+          { status: 409 } // 409 Conflict
+        );
+      }
+    }
+
     // tag_idsが指定されている場合、タグの存在確認
     if (tag_ids && Array.isArray(tag_ids) && tag_ids.length > 0) {
       const tags = await prisma.tag.findMany({
