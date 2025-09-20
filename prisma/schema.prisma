@@ -4,20 +4,20 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+  url      = "file:./dev.db"
 }
 
 // ステータス用のenum
 enum WorkStatus {
-  WORKING   @map("working")
-  COMPLETED @map("completed") 
-  PAUSED    @map("paused")
+  WORKING
+  COMPLETED 
+  PAUSED
 }
 
 // ヘルスチェック用のモデル
 model HealthCheck {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  created_at DateTime @default(now())
 }
 
 // プロジェクト
@@ -25,9 +25,9 @@ model Project {
   id          String   @id @default(cuid())
   name        String
   description String?
-  isActive    Boolean  @default(true) @map("is_active")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
   
   // リレーション
   tags        Tag[]
@@ -38,33 +38,33 @@ model Project {
 
 // 作業のタグ
 model Tag {
-  id        String   @id @default(cuid())
-  projectId String   @map("project_id")
-  name      String
-  color     String   @default("#667eea")
-  createdAt DateTime @default(now()) @map("created_at")
+  id         String   @id @default(cuid())
+  project_id String
+  name       String
+  color      String   @default("#667eea")
+  created_at DateTime @default(now())
   
   // リレーション
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project    Project  @relation(fields: [project_id], references: [id], onDelete: Cascade)
 
   @@map("tags")
 }
 
 // 作業記録
 model Work {
-  id            String    @id @default(cuid())
-  projectId     String    @map("project_id")
-  userName      String    @map("user_name")
-  plannedTask   String?   @map("planned_task")
-  finishTask    String?   @map("finish_task")
-  remindTask String?   @map("remind_task")
-  status        WorkStatus @default(WORKING)  // enumを使用
-  startedAt     DateTime  @default(now()) @map("started_at")
-  endedAt       DateTime? @map("ended_at")
-  createdAt     DateTime  @default(now()) @map("created_at")
+  id            String     @id @default(cuid())
+  project_id    String
+  user_name     String
+  planned_task  String?
+  finish_task   String?
+  remind_task   String?
+  status        WorkStatus @default(WORKING)
+  started_at    DateTime   @default(now())
+  ended_at      DateTime?
+  created_at    DateTime   @default(now())
   
   // リレーション
-  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project       Project    @relation(fields: [project_id], references: [id], onDelete: Cascade)
 
   @@map("work")
 }
