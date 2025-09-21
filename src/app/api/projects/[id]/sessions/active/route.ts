@@ -4,10 +4,10 @@ import { prisma } from "@/lib/prisma";
 // 現在作業中のセッション取得
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
+    const id = params.id;
 
     // プロジェクトの存在確認
     const project = await prisma.project.findUnique({

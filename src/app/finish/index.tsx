@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import {
 	Box,
 	Button,
@@ -13,178 +15,137 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
-// APIから返されるセッションの型定義
-interface Session {
+// APIから返されるworkの型定義
+interface Work {
 	id: string;
+	project_id: string;
 	user_name: string;
 	planned_task: string;
+	actual_task: string | null;
+	remaining_task: string | null;
+	status: string;
 	started_at: string;
-	elapsed_minutes: number;
-	tags: string[];
+	ended_at: string | null;
+	created_at: string;
 }
 
-// モックデータ
-const _mockSessions: Session[] = [
-	{
-		id: "session-001",
-		user_name: "山田太郎",
-		planned_task: "フロントエンドの改修",
-		started_at: "2024-01-20T10:00:00Z",
-		elapsed_minutes: 60,
-		tags: ["フロントエンド", "React"],
-	},
-	{
-		id: "session-002",
-		user_name: "佐藤花子",
-		planned_task: "APIエンドポイントの実装",
-		started_at: "2024-01-20T11:00:00Z",
-		elapsed_minutes: 30,
-		tags: ["バックエンド", "API"],
-	},
-	{
-		id: "session-003",
-		user_name: "鈴木次郎",
-		planned_task: "データベース設計",
-		started_at: "2024-01-20T09:30:00Z",
-		elapsed_minutes: 120,
-		tags: ["バックエンド", "データベース"],
-	},
-];
-
-// データフェッチをここに書きたい。今はモックでーたをかえす
-const fetchActiveSessions = async (_projectId: string) => {
-	console.log("APIの代わりにモックデータを返します。");
-	return _mockSessions;
-
-	/* --- ↓↓↓ 本物のAPI通信処理（バックエンド完成までコメントアウト）↓↓↓ ---
-    const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-    const endpoint = `${apiUrl}/sessions/active?projectId=${projectId}`;
-    console.log(`Fetching active sessions from: ${endpoint}`);
-
-    try {
-        const response = await fetch(endpoint);
-        if (!response.ok) {
-            throw new Error(`API Error: ${response.status} ${response.statusText}`);
-        }
-        const data: Session[] = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Failed to fetch active sessions:", error);
-        return [];
-    }
-    */
-};
-
-// 指定されたセッションを終了する関数
-const endSession = async (sessionId: string) => {
-	const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-	const endpoint = `${apiUrl}/sessions/${sessionId}/end`;
-	console.log(`Ending session at: ${endpoint}`);
+// 活動中の作業を取得する関数
+const fetchActiveWorks = async (projectId: string): Promise<Work[]> => {
+	// workテーブルからデータを取得するAPIエンドポイントを想定
+	console.log("受け取ったprojectIDです：", projectId);
+	const endpoint = `/projects/{project_id}/sessions/active`;
+	console.log(`Fetching active works from: ${endpoint}`);
 
 	try {
+		const response = await fetch(endpoint);
+		if (!response.ok) {
+			throw new Error(`API Error: ${response.status} ${response.statusText}`);
+		}
+
+		const data: { works: Work[] } = await response.json();
+		// ended_atがnullのものを活動中の作業としてフィルタリング
+		return data.works.filter((work) => work.ended_at === null);
+	} catch (error) {
+		console.error("Failed to fetch active works:", error);
+		return [];
+	}
+};
+
+// 指定された作業を終了する（ended_atを更新する）関数
+const endWork = async (workId: string): Promise<{ success: boolean }> => {
+	const endpoint = `/api/work/${workId}`; // 特定のworkを更新するAPIエンドポイントを想定
+	console.log(`Ending work with ID: ${workId}`);
+	try {
 		const response = await fetch(endpoint, {
-			method: "POST",
+			method: "PATCH", // 部分的な更新なのでPATCHを使用
 			headers: {
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({ ended_by: "user" }),
+			body: JSON.stringify({
+				ended_at: new Date().toISOString(), // 終了時刻に現在時刻を設定
+			}),
 		});
 
 		if (!response.ok) {
 			throw new Error(`API Error: ${response.status} ${response.statusText}`);
 		}
-		console.log("sessionの終了（削除）に成功");
 		return { success: true };
 	} catch (error) {
-		console.error("sessionの終了（削除）に失敗", error);
+		console.error(`Failed to end work (ID: ${workId}):`, error);
 		return { success: false };
 	}
 };
 
 export default function Finish() {
-	const [sessions, setSessions] = useState<Session[]>([]);
-	const [selectedSessionId, setSelectedSessionId] = useState<string>("");
+	const [works, setWorks] = useState<Work[]>([]);
+	const [selectedWorkId, setSelectedWorkId] = useState<string>("");
 	const [loading, setLoading] = useState<boolean>(true);
 	const [submitting, setSubmitting] = useState<boolean>(false);
 
 	useEffect(() => {
-		console.log("テスト用のモックを受け取ります:", _mockSessions);
-
-		const loadSessions = async () => {
+		const loadWorks = async () => {
 			setLoading(true);
-			// project_idは仮で'project-123'とする
-			const activeSessions = await fetchActiveSessions("project-123");
-			setSessions(activeSessions);
-			//setLoadingがtrueの間だけロード画面を表示させるため
+			const activeWorks = await fetchActiveWorks("project-123");
+			setWorks(activeWorks);
 			setLoading(false);
 		};
-		loadSessions();
+		loadWorks();
 	}, []);
 
-	const handleSessionChange = (event: any) => {
-		setSelectedSessionId(event.target.value as string);
+	const handleWorkChange = (event: any) => {
+		setSelectedWorkId(event.target.value as string);
 	};
 
-	const handleFinishSession = async () => {
-		if (!selectedSessionId) {
-			alert("終了するセッションを選択してください。");
+	const handleFinishWork = async () => {
+		if (!selectedWorkId) {
+			alert("終了する作業を選択してください。");
 			return;
 		}
 		setSubmitting(true);
-		const result = await endSession(selectedSessionId);
+		const result = await endWork(selectedWorkId);
 		if (result.success) {
-			alert(`セッション (ID: ${selectedSessionId}) を終了しました。`);
-			// 終了したセッションをリストから削除
-			setSessions(sessions.filter((s) => s.id !== selectedSessionId));
-			setSelectedSessionId("");
+			alert(`作業 (ID: ${selectedWorkId}) を終了しました。`);
+			// 画面上から終了した作業を削除
+			setWorks(works.filter((w) => w.id !== selectedWorkId));
+			setSelectedWorkId("");
 		} else {
-			alert("セッションの終了に失敗しました。");
+			alert("作業の終了に失敗しました。");
 		}
 		setSubmitting(false);
 	};
 
 	return (
-		<Box
-			sx={{
-				display: "flex",
-				justifyContent: "flex-end",
-				alignItems: "flex-start",
-				minHeight: "100vh",
-				padding: 10,
-			}}
-		>
+		<Box>
 			<Paper
 				elevation={3}
 				sx={{
 					padding: "2rem",
 					width: "100%",
-					maxWidth: "500px",
+					height: "100%",
 					textAlign: "center",
 				}}
 			>
 				<Typography variant="h5" component="h1" gutterBottom>
-					作業セッションの終了
+					作業の終了
 				</Typography>
 				{loading ? (
 					<Box sx={{ my: 4 }}>
 						<CircularProgress />
-						<Typography>アクティブなセッションを取得中...</Typography>
+						<Typography>アクティブな作業を取得中...</Typography>
 					</Box>
 				) : (
 					<FormControl fullWidth sx={{ my: 3 }}>
-						<InputLabel id="session-select-label">
-							終了するセッションを選択
-						</InputLabel>
+						<InputLabel id="work-select-label">終了する作業を選択</InputLabel>
 						<Select
-							labelId="session-select-label"
-							value={selectedSessionId}
-							label="終了するセッションを選択"
-							onChange={handleSessionChange}
-							disabled={sessions.length === 0}
+							labelId="work-select-label"
+							value={selectedWorkId}
+							label="終了する作業を選択"
+							onChange={handleWorkChange}
+							disabled={works.length === 0}
 						>
-							{sessions.map((session) => (
-								<MenuItem key={session.id} value={session.id}>
-									{`${session.user_name} - ${session.planned_task}`}
+							{works.map((work) => (
+								<MenuItem key={work.id} value={work.id}>
+									{`${work.user_name} - ${work.planned_task}`}
 								</MenuItem>
 							))}
 						</Select>
@@ -193,8 +154,8 @@ export default function Finish() {
 				<Button
 					variant="contained"
 					color="primary"
-					onClick={handleFinishSession}
-					disabled={!selectedSessionId || submitting || loading}
+					onClick={handleFinishWork}
+					disabled={!selectedWorkId || submitting || loading}
 					fullWidth
 					sx={{ position: "relative" }}
 				>
