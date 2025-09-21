@@ -4,8 +4,6 @@ import WorkingMembers from "./workingMembers";
 
 export default function Home() {
 	return (
-		// 1. ページ全体を覆うBoxコンテナを追加
-		// これがページ全体のレイアウトの基準となり、中身を中央に配置します
 		<Box
 			sx={{
 				display: "flex",
