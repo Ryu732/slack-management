@@ -52,11 +52,13 @@ const Header: React.FC<HeaderProps> = ({ projects, onProjectChange, onAddProject
                     onChange={handleChange}
                     className="border-2 border-gray-200 rounded-lg px-3 py-2"
                 >
-                    {projects.map(project => (
-                        <option key={project.id} value={project.id}>
-                            {project.name}
-                        </option>
-                    ))}
+                    {projects
+                        .filter(project => project.is_active)
+                        .map(project => (
+                            <option key={project.id} value={project.id}>
+                                {project.name}
+                            </option>
+                        ))}
                 </select>
             </div>
             <div className="flex items-center">
