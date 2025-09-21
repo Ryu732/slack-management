@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 // Slack連携設定の作成・更新
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { webhook_url } = await request.json();
@@ -27,7 +27,7 @@ export async function POST(
       );
     }
 
-    const projectId = params.id;
+    const { id: projectId } = await params;
 
     // プロジェクトの存在確認
     const project = await prisma.project.findUnique({
@@ -81,10 +81,10 @@ export async function POST(
 // Slack連携設定の削除
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const projectId = params.id;
+    const { id: projectId } = await params;
 
     // Slack連携設定の存在確認
     const slackIntegration = await prisma.slackIntegration.findUnique({
