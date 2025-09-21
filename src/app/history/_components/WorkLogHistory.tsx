@@ -60,7 +60,7 @@ const WorkLogHistory: React.FC<Props> = ({ workLogs, allTags, members }) => {
     });
 
     return (
-        <div className="bg-white rounded-2xl p-6 shadow-lg max-w-2xl w-full mx-auto my-8">
+        <div className="bg-white rounded-2xl p-6 border border-gray-200 max-w-2xl w-full mx-auto my-8">
             <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
                 <span className="mr-2">📝</span> 作業履歴
             </h2>
