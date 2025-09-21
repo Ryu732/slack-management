@@ -15,7 +15,8 @@ export type FetchProjectsResponse = {
 };
 
 export async function fetchProjects(): Promise<Project[]> {
-    const res = await fetch('/api/projects', {
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const res = await fetch(`${baseUrl}/api/projects`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
