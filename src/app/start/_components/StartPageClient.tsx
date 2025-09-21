@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from "react"; // useEffect をインポート
+import React, { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import Header from "@/app/components/header";
 import StartTask from "@/app/start/_components/startTask";
