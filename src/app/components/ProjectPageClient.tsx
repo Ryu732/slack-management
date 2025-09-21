@@ -37,7 +37,6 @@ export default function ProjectPageClient({ initialProjects }: Props) {
                     setTags(data.tags || []);
                     
                     // デバッグ用: ブラウザのコンソール（F12）で何がセットされたか確認できます
-                    console.log('Successfully set tags:', data.tags || []);
 
                 } catch (error) {
                     console.error("Failed to fetch tags:", error);
