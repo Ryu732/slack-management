@@ -20,9 +20,10 @@ const Header: React.FC<HeaderProps> = ({ projects, onProjectChange, onAddProject
             const firstActiveProject = projects.find(p => p.is_active);
             if (firstActiveProject) {
                 setSelectedProjectId(firstActiveProject.id);
+                onProjectChange(firstActiveProject.id);
             }
         }
-    }, [projects, selectedProjectId]);
+    }, [projects, selectedProjectId, onProjectChange]);
     
     // projectsが外部要因（例：追加）で更新された場合、選択肢も追従させる
     useEffect(() => {
