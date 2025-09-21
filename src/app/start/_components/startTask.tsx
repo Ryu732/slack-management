@@ -33,7 +33,7 @@ export default function StartTask({ project_id, tags }: StartTaskProps) {
 
   const handleStartTask = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    if(!userName.trim() || !plannedTask.trim()) {
+    if (!userName.trim() || !plannedTask.trim()) {
       alert("作業者名とこれから行う作業を入力してください。");
       return;
     }
