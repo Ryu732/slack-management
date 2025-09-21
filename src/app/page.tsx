@@ -1,6 +1,5 @@
-import { Box, Grid } from "@mui/material";
+import { Box } from "@mui/material";
 import Finish from "./finish";
-import StartTask from "./start/_components/startTask";
 import WorkingMembers from "./workingMembers";
 
 export default function Home() {
@@ -17,22 +16,9 @@ export default function Home() {
 				p: 4, // コンテンツの周りに余白を設定
 			}}
 		>
-			{/* 2. コンポーネント群を配置するGridコンテナ
-          最大幅を設定し、画面が広すぎても間延びしないようにする */}
-			<Grid container spacing={4} sx={{ maxWidth: "1800px" }}>
-				{/* --- 上の段 --- */}
-				<Grid item xs={12} lg={6}>
-					<StartTask />
-					<WorkingMembers />
-				</Grid>
-				<Grid item xs={12} lg={6}>
-					<Finish />
-				</Grid>
+			<WorkingMembers />
 
-				{/* --- 下の段 --- */}
-
-				{/* 右下は空けておく */}
-			</Grid>
+			<Finish />
 		</Box>
 	);
 }
