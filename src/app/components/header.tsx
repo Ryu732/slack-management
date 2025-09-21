@@ -34,9 +34,12 @@ const Header: React.FC<HeaderProps> = ({ projects, onProjectChange, onAddProject
         if (!newProjectName.trim()) return; // 空の文字列は追加しない
         
         setIsSubmitting(true);
-        await onAddProject(newProjectName);
-        setNewProjectName(''); // 入力欄をクリア
-        setIsSubmitting(false);
+        try {
+            await onAddProject(newProjectName);
+            setNewProjectName(''); // 入力欄をクリア
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
