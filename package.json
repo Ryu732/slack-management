@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "npm run schema:dev && next dev",
-    "build": "npm run schema:prod && prisma generate && npx prisma db push --accept-data-loss && next build",
+    "build": "npm run schema:prod && prisma generate && next build",
     "schema:dev": "node scripts/copy-schema.js dev",
     "schema:prod": "node scripts/copy-schema.js prod",
     "start": "next start",
@@ -12,7 +12,8 @@
     "postinstall": "npm run schema:prod && prisma generate",
     "db:push": "npm run schema:dev && prisma db push",
     "db:studio": "npm run schema:dev && prisma studio",
-    "db:migrate": "npm run schema:prod && prisma migrate dev --name init"
+    "db:migrate": "npm run schema:prod && prisma migrate dev --name init",
+    "db:setup": "npm run schema:prod && prisma db push --accept-data-loss"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
