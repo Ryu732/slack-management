@@ -84,4 +84,5 @@ export default function Status({ workLog }: StatusProps) {
 			</Box>
 		</Box>
 	);
+}
 

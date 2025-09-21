@@ -103,10 +103,10 @@ export default function ProjectPageClient({ initialProjects }: Props) {
                         {/* 左カラム: 作業開始フォームなど */}
                         <div className="space-y-8">
                             <StartTask tags={tags} project_id={selectedProjectId as `${string}-${string}-${string}-${string}-${string}`} />
-                            <Finish />
                         </div>
-                        {/* 右カラム: 作業履歴 */}
+                        {/* 右カラム */}
                         <div>
+                            <Finish />
                             <WorkLogHistory workLogs={workLogs} allTags={tags} members={members} />
                         </div>
                         {/* ページ下部: 作業中メンバー (広い画面では2カラムにまたがる) */}
