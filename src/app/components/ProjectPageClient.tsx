@@ -17,6 +17,7 @@ export default function ProjectPageClient({ initialProjects }: Props) {
     const [tags, setTags] = useState<Tag[]>([]);
     const [isLoadingTags, setIsLoadingTags] = useState(true);
     const router = useRouter();
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
     useEffect(() => {
         // プロジェクトIDが選択されている場合のみ、タグの取得処理を実行
@@ -24,19 +25,15 @@ export default function ProjectPageClient({ initialProjects }: Props) {
             const fetchTagsForProject = async () => {
                 setIsLoadingTags(true);
                 try {
-                    const response = await fetch(`/api/projects/${selectedProjectId}/tags`);
+                    const response = await fetch(`${baseUrl}/api/projects/${selectedProjectId}/tags`);
                     if (!response.ok) {
                         throw new Error('API request failed');
                     }
                     const data = await response.json();
 
-                    // ★★★ ここが最も重要な修正点です ★★★
-                    // APIから返される { tags: [...] } というオブジェクトの中から、
-                    // .tags プロパティ（タグの配列）を取り出してセットします。
-                    // data.tags が存在しない場合に備え、|| [] で空の配列を保証します。
+
                     setTags(data.tags || []);
-                    
-                    // デバッグ用: ブラウザのコンソール（F12）で何がセットされたか確認できます
+
 
                 } catch (error) {
                     console.error("Failed to fetch tags:", error);
@@ -53,7 +50,7 @@ export default function ProjectPageClient({ initialProjects }: Props) {
         }
     }, [selectedProjectId]);
 
-    // プロジェクト追加のロジック（変更なし）
+    // プロジェクト追加のロジック
     const handleAddProject = async (projectName: string) => {
         const newProject: post_project = {
             name: projectName,

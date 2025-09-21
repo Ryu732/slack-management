@@ -16,6 +16,7 @@ export default function StartTask({ project_id, tags }: StartTaskProps) {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [plannedTask, setPlannedTask] = useState<string>("");
   const [userName, setUserName] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setSelectedTags([]);
@@ -30,15 +31,34 @@ export default function StartTask({ project_id, tags }: StartTaskProps) {
     );
   };
 
-  const handleStartTask = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleStartTask = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    const task: start = {
-      user_name: userName,
-      planned_task: plannedTask,
-      tag_ids: selectedTags
-    };
-    postWork(task, project_id);
-    console.log("作業を開始:", task);
+    if (!userName.trim() || !plannedTask.trim()) {
+      alert("作業者名とこれから行う作業を入力してください。");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const task: start = {
+        user_name: userName,
+        planned_task: plannedTask,
+        tag_ids: selectedTags
+      };
+      await postWork(task, project_id); 
+      // 成功時にブラウザのalertを表示
+      alert("作業を開始しました！");
+
+      // 成功後にフォームをクリアする
+      setUserName('');
+      setPlannedTask('');
+      setSelectedTags([]);
+
+    } catch (error) {
+      console.error("Failed to start task:", error);
+      alert("作業の開始に失敗しました。");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -109,8 +129,7 @@ export default function StartTask({ project_id, tags }: StartTaskProps) {
 
             </div>
             <button onClick={handleStartTask} className="w-full py-4 bg-gradient-to-r from-green-400 to-cyan-400 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-3 hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
-              <span>🚀</span>
-              <span>作業を開始する</span>
+              {isLoading ? "開始中..." : "作業開始"}
             </button>
           </div>
         </div>
