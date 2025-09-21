@@ -20,6 +20,7 @@ const Header: React.FC<HeaderProps> = ({ projects, onProjectChange, onAddProject
     useEffect(() => {
         if (projects.length > 0 && !projects.find(p => p.id === selectedProjectId)) {
             setSelectedProjectId(projects[0].id);
+            onProjectChange(projects[0].id);
         }
     }, [projects, selectedProjectId]);
 
