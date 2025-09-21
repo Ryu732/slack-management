@@ -13,9 +13,10 @@ import WorkingMembers from '@/app/workingMembers/index';
 // --- 型定義のインポート ---
 import { Project } from "@/app/lib/fetchProject";
 import postProject, { post_project } from '@/app/lib/postProject';
-import { Tag } from "@/app/start/_types/tag"; // 履歴側の型定義に統一
+import { Tag } from "@/app/start/_types/tag";
 import { WorkLog } from "@/app/history/_types/workLog";
 import { Member } from "@/app/history/_types/member";
+
 // --- API関数のインポート ---
 import { fetchTags } from "@/app/start/_lib/fetchTags";
 import { fetchWorkLogs } from "@/app/history/_lib/fetchWorkLogs";
@@ -108,7 +109,7 @@ export default function ProjectPageClient({ initialProjects }: Props) {
                         <div>
                             <WorkLogHistory workLogs={workLogs} allTags={tags} members={members} />
                         </div>
-                        {/* 右カラム下部: 作業中メンバー */}
+                        {/* ページ下部: 作業中メンバー (広い画面では2カラムにまたがる) */}
                         <div className="lg:col-span-2">
                             <WorkingMembers />
                         </div>
@@ -122,3 +123,4 @@ export default function ProjectPageClient({ initialProjects }: Props) {
         </div>
     );
 }
+

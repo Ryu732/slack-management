@@ -71,7 +71,7 @@ export default function StartPageClient({ initialProjects }: Props) {
             />
             {selectedProjectId && (
                 isLoadingTags ? (
-                    <p className="p-8 text-center text-gray-500">読み込み中...</p>
+                    <p className="p-8 text-center text-gray-500">タグを読み込み中...</p>
                 ) : (
                     <StartTask tags={tags} project_id={selectedProjectId as `${string}-${string}-${string}-${string}-${string}`} />
                 )
