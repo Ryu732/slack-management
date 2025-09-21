@@ -5,6 +5,9 @@ export type post_project = {
 
 export default async function postProject(data: post_project) {
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    if (!baseUrl) {
+        throw new Error('NEXT_PUBLIC_API_BASE_URL environment variable is not set');
+    }
   const response = await fetch(`${baseUrl}/api/projects`, {
     method: 'POST',
     headers: {
