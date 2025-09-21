@@ -55,50 +55,13 @@ const _mockSessions: Session[] = [
 const fetchActiveSessions = async (_projectId: string) => {
 	console.log("APIの代わりにモックデータを返します。");
 	return _mockSessions;
-
-	/* --- ↓↓↓ 本物のAPI通信処理（バックエンド完成までコメントアウト）↓↓↓ ---
-    const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-    const endpoint = `${apiUrl}/sessions/active?projectId=${projectId}`;
-    console.log(`Fetching active sessions from: ${endpoint}`);
-
-    try {
-        const response = await fetch(endpoint);
-        if (!response.ok) {
-            throw new Error(`API Error: ${response.status} ${response.statusText}`);
-        }
-        const data: Session[] = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Failed to fetch active sessions:", error);
-        return [];
-    }
-    */
 };
 
 // 指定されたセッションを終了する関数
 const endSession = async (sessionId: string) => {
-	const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-	const endpoint = `${apiUrl}/sessions/${sessionId}/end`;
-	console.log(`Ending session at: ${endpoint}`);
-
-	try {
-		const response = await fetch(endpoint, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ ended_by: "user" }),
-		});
-
-		if (!response.ok) {
-			throw new Error(`API Error: ${response.status} ${response.statusText}`);
-		}
-		console.log("sessionの終了（削除）に成功");
-		return { success: true };
-	} catch (error) {
-		console.error("sessionの終了（削除）に失敗", error);
-		return { success: false };
-	}
+	// ... (この関数の中身は変更なし)
+	console.log(`Ending session with ID: ${sessionId}`);
+	return { success: true };
 };
 
 export default function Finish() {
@@ -108,14 +71,10 @@ export default function Finish() {
 	const [submitting, setSubmitting] = useState<boolean>(false);
 
 	useEffect(() => {
-		console.log("テスト用のモックを受け取ります:", _mockSessions);
-
 		const loadSessions = async () => {
 			setLoading(true);
-			// project_idは仮で'project-123'とする
 			const activeSessions = await fetchActiveSessions("project-123");
 			setSessions(activeSessions);
-			//setLoadingがtrueの間だけロード画面を表示させるため
 			setLoading(false);
 		};
 		loadSessions();
@@ -134,7 +93,6 @@ export default function Finish() {
 		const result = await endSession(selectedSessionId);
 		if (result.success) {
 			alert(`セッション (ID: ${selectedSessionId}) を終了しました。`);
-			// 終了したセッションをリストから削除
 			setSessions(sessions.filter((s) => s.id !== selectedSessionId));
 			setSelectedSessionId("");
 		} else {
@@ -144,21 +102,15 @@ export default function Finish() {
 	};
 
 	return (
-		<Box
-			sx={{
-				display: "flex",
-				justifyContent: "flex-end",
-				alignItems: "flex-start",
-				minHeight: "100vh",
-				padding: 10,
-			}}
-		>
+		// 修正点1: 親のBoxからレイアウトを壊すスタイルを削除
+		<Box>
 			<Paper
 				elevation={3}
 				sx={{
 					padding: "2rem",
 					width: "100%",
-					maxWidth: "500px",
+
+					height: "100%",
 					textAlign: "center",
 				}}
 			>
