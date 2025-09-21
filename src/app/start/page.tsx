@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { fetchProjects } from "@/app/lib/fetchProject";
 import ProjectPageClient from "@/app/components/ProjectPageClient";
 import { fetchTags } from "./_lib/fetchTags";
