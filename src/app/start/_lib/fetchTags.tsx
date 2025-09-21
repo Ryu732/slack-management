@@ -18,6 +18,5 @@ export async function fetchTags(project_id: UUID): Promise<Tag[]> {
         throw new Error('Failed to fetch tags');
     }
     const data: FetchTagsResponse = await response.json();
-    console.log("Fetched tags:", data.tags);
     return data.tags;
 }
