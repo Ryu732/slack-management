@@ -1,3 +1,4 @@
+
 "use client"; // ← これを追加
 
 import type { UUID } from "node:crypto";
@@ -83,4 +84,4 @@ export default function Status({ workLog }: StatusProps) {
 			</Box>
 		</Box>
 	);
-}
+
