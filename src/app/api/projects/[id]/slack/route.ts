@@ -7,7 +7,19 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { webhook_url } = await request.json();
+    let body;
+
+    try {
+      body = await request.json();
+    } catch (jsonError) {
+      console.error("JSON parse error:", jsonError);
+      return NextResponse.json(
+        { error: "Invalid JSON format" },
+        { status: 400 }
+      );
+    }
+
+    const { webhook_url } = body;
 
     // バリデーション
     if (!webhook_url) {
@@ -17,12 +29,18 @@ export async function POST(
       );
     }
 
-    // Slack Webhook URLの形式チェック
+    // より柔軟なSlack Webhook URLの形式チェック
     const slackWebhookPattern =
-      /^https:\/\/hooks\.slack\.com\/services\/[A-Z0-9]+\/[A-Z0-9]+\/[A-Za-z0-9]+$/;
+      /^https:\/\/hooks\.slack\.com\/services\/[A-Z0-9]{9,11}\/[A-Z0-9]{9,11}\/[A-Za-z0-9]{24}$/;
+
     if (!slackWebhookPattern.test(webhook_url)) {
+      console.log("Invalid webhook URL:", webhook_url); // デバッグ用
       return NextResponse.json(
-        { error: "Invalid Slack webhook URL format" },
+        {
+          error: "Invalid Slack webhook URL format",
+          expected:
+            "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX",
+        },
         { status: 400 }
       );
     }
