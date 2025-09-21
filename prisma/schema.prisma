@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -30,8 +30,9 @@ model Project {
   updated_at  DateTime @updatedAt
   
   // リレーション
-  tags        Tag[]
-  works       Work[]
+  tags            Tag[]
+  works           Work[]
+  slack_integration SlackIntegration? // 1対1のリレーション
 
   @@map("projects")
 }
@@ -68,5 +69,20 @@ model Work {
   project        Project    @relation(fields: [project_id], references: [id], onDelete: Cascade)
 
   @@map("work")
+}
+
+// Slack連携設定
+model SlackIntegration {
+  id          String   @id @default(cuid())
+  project_id  String   @unique
+  webhook_url String   // Webhook URL（暗号化）
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  
+  // リレーション
+  project     Project  @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  @@map("slack_integrations")
 }
 
